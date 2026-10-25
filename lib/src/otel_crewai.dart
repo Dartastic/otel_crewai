@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_crewai_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_crewai';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class CrewaiResult {
+  /// Creates a result.
   const CrewaiResult({
     this.crewName,
     this.crewId,
@@ -85,8 +86,13 @@ class CrewaiResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class CrewaiCallResult<T> {
+  /// Creates a call result.
   const CrewaiCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final CrewaiResult? result;
 }
@@ -112,62 +118,62 @@ Future<T> tracedCrewai<T>({
   final span = _tracer().startSpan(
     'crewai $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.crewName != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.crew.name',
           r.result!.crewName!,
         ));
       }
       if (r.result!.crewId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.crew.id',
           r.result!.crewId!,
         ));
       }
       if (r.result!.process != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.process',
           r.result!.process!,
         ));
       }
       if (r.result!.agentRole != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.agent.role',
           r.result!.agentRole!,
         ));
       }
       if (r.result!.agentId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.agent.id',
           r.result!.agentId!,
         ));
       }
       if (r.result!.taskId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.task.id',
           r.result!.taskId!,
         ));
       }
       if (r.result!.taskDescription != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.task.description',
           r.result!.taskDescription!,
         ));
       }
       if (r.result!.toolName != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.tool.name',
           r.result!.toolName!,
         ));
       }
       if (r.result!.toolStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.tool.status',
           r.result!.toolStatus!,
         ));
@@ -180,25 +186,25 @@ Future<T> tracedCrewai<T>({
         }
       }
       if (r.result!.delegated != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'crewai.task.delegated',
           r.result!.delegated!,
         ));
       }
       if (r.result!.delegationTo != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.delegation.to',
           r.result!.delegationTo!,
         ));
       }
       if (r.result!.iterations != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'crewai.iterations',
           r.result!.iterations!,
         ));
       }
       if (r.result!.maxIterations != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'crewai.max_iterations',
           r.result!.maxIterations!,
         ));
@@ -211,37 +217,37 @@ Future<T> tracedCrewai<T>({
         }
       }
       if (r.result!.promptTokens != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'crewai.tokens.prompt',
           r.result!.promptTokens!,
         ));
       }
       if (r.result!.completionTokens != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'crewai.tokens.completion',
           r.result!.completionTokens!,
         ));
       }
       if (r.result!.totalTokens != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'crewai.tokens.total',
           r.result!.totalTokens!,
         ));
       }
       if (r.result!.modelName != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'crewai.model.name',
           r.result!.modelName!,
         ));
       }
       if (r.result!.executionMs != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'crewai.execution_ms',
           r.result!.executionMs!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -252,13 +258,13 @@ Future<T> tracedCrewai<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
